@@ -1,0 +1,43 @@
+version: '3'
+
+services:
+  postgres:
+    build:
+      context: .
+      dockerfile: Dockerfile-postgres
+    container_name: notifi_postgres
+    command: postgres -c "max_connections=1024"
+    environment:
+      SERVICE_NAME: 'postgres'
+      POSTGRES_DB: 'notifi'
+      POSTGRES_USER: 'notifi'
+      POSTGRES_PASSWORD: 'notifi'
+      POSTGRES_SCHEMA: 'notifi'
+    ports:
+      - 5432:5432
+    networks:
+        - notifi
+
+  redis:
+    image: redis:7.0.7
+    container_name: notifi_redis
+    environment:
+      REDIS_PASSWORD: 'notifi'
+    ports:
+      - 6379:6379
+    networks:
+      - notifi
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile-api
+    container_name: notifi_api
+    ports:
+      - 3000:80
+    networks:
+      - notifi
+
+networks:
+    notifi:
+        driver: bridge
